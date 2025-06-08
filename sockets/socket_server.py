@@ -46,9 +46,17 @@ def generate_waybar_output(state):
         start_time = state.get("start_time", "")
         elapsed_seconds = state.get("elapsed_seconds", 0)
         
+        # 处理状态可能是字典的情况
+        if isinstance(current_status, dict) and "name" in current_status:
+            status_name = current_status["name"]
+            status_icon = current_status.get("icon", "")
+        else:
+            status_name = current_status
+            status_icon = ""
+        
         # 计算剩余时间
         phase_duration = 25 * 60  # 默认25分钟
-        if current_status == "break":
+        if status_name == "break":
             phase_duration = 5 * 60  # 默认5分钟休息
         
         remaining_seconds = max(0, phase_duration - elapsed_seconds)
@@ -57,12 +65,12 @@ def generate_waybar_output(state):
         
         # 根据状态设置图标和类
         if timer_state == "Running":
-            if current_status == "work":
-                icon = "🔨"
+            if status_name == "work":
+                icon = status_icon or "🔨"
                 css_class = "running"
                 alt_color = "#ff5555"  # 工作时为红色
             else:
-                icon = "☕"
+                icon = status_icon or "☕"
                 css_class = "running"
                 alt_color = "#50fa7b"  # 休息时为绿色
         elif timer_state == "Paused":
@@ -77,13 +85,20 @@ def generate_waybar_output(state):
         # 计算百分比
         percentage = min(100, int((elapsed_seconds / phase_duration) * 100)) if phase_duration > 0 else 0
         
-        # 生成文本和提示
-        text = f"{icon} {current_status}: {minutes:02d}:{seconds:02d}"
-        tooltip = f"{current_status}: {workflow_name}\nRemaining: {minutes:02d}:{seconds:02d}"
+        # 格式化剩余时间，确保是分钟:秒钟格式
+        remaining_time_str = f"{minutes:02d}:{seconds:02d}"
+        
+        # 格式化已用时间，确保是分钟:秒钟格式
+        elapsed_min = elapsed_seconds // 60
+        elapsed_sec = elapsed_seconds % 60
+        elapsed_time_str = f"{elapsed_min:02d}:{elapsed_sec:02d}"
+        
+        # 生成文本和提示 - 确保显示完整的时间格式（分钟:秒钟）
+        text = f"{icon} {status_name}: {remaining_time_str}"
+        tooltip = f"{status_name}: {workflow_name}\nRemaining: {remaining_time_str}"
+        
         if timer_state == "Running" or timer_state == "Paused":
-            elapsed_min = elapsed_seconds // 60
-            elapsed_sec = elapsed_seconds % 60
-            tooltip += f"\nElapsed: {elapsed_min:02d}:{elapsed_sec:02d}"
+            tooltip += f"\nElapsed: {elapsed_time_str}"
         
         # 创建Waybar输出
         output = {
