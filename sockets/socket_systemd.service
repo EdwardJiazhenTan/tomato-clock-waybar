@@ -1,0 +1,12 @@
+[Unit]
+Description=Tomato Clock Socket Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/Documents/personal/tomato-clock-waybar/sockets/socket_server.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target 

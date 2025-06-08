@@ -1,0 +1,17 @@
+# Tomato Clock Default Configuration
+
+# Default workflow to use when starting the timer without specifying one
+default_workflow = "Default Pomodoro"
+
+# Default status to use when starting the timer without specifying one
+default_status = "work"
+
+# Enable or disable desktop notifications
+notification_enabled = true
+
+# Waybar integration configuration
+[waybar_integration]
+enabled = true
+format = "{icon} {status}: {remaining}"
+socket_path = "~/.config/waybar/tomato-clock.sock"
+click_events = true 
